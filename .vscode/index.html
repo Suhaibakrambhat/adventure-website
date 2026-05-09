@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADVENTURE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=DM+Sans:wght@300;400;500&family=Rubik+Dirt&display=swap" rel="stylesheet" />
+
+  <style>
+
+    :root {
+      --pink:     #fc036b;
+      --pink-dim: #a50046;
+      --white:    #f5f0eb;
+      --charcoal: #111111;
+      --mid:      #1e1e1e;
+      --glass:    rgba(255,255,255,0.07);
+      --blur:     blur(18px);
+
+      --ff-display: 'Bebas Neue', sans-serif;
+      --ff-serif:   'Cormorant Garamond', serif;
+      --ff-body:    'DM Sans', sans-serif;
+      --ff-logo:    'Rubik Dirt', cursive;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--charcoal);
+      color: var(--white);
+      font-family: var(--ff-body);
+      overflow-x: hidden;
+      transition: background .4s, color .4s;
+    }
+
+    body.light {
+      background: #f0ece6;
+      color: #111;
+    }
+
+    img { max-width: 100%; display: block; }
+    a   { text-decoration: none; color: inherit; }
+    ul  { list-style: none; }
+
+
+    ::-webkit-scrollbar       { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 10px; }
+
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: .35;
+    }
+
+ 
+    .navbar {
+      position: fixed; top: 0; left: 0; width: 100%;
+      height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      background: rgba(10,10,10,.55);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      z-index: 1000;
+      transition: background .4s;
+    }
+
+    body.light .navbar { background: rgba(240,236,230,.75); }
+
+    .brand {
+      display: flex; align-items: center; gap: .6rem;
+    }
+
+    .brand-icon {
+      width: 36px; filter: drop-shadow(0 0 8px var(--pink));
+    }
+
+    .logo {
+      font-family: var(--ff-logo);
+      font-size: 1.3rem;
+      letter-spacing: .3rem;
+      color: var(--white);
+      transition: color .4s;
+    }
+
+    body.light .logo { color: #111; }
+
+    .nav-links {
+      display: flex; align-items: center; gap: .2rem;
+    }
+
+    .nav-links li a {
+      font-family: var(--ff-body);
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .08rem;
+      color: rgba(255,255,255,.75);
+      padding: .45rem 1rem;
+      border-radius: 100vmax;
+      border: 1px solid transparent;
+      transition: all .25s;
+    }
+
+    body.light .nav-links li a { color: rgba(0,0,0,.65); }
+
+    .nav-links li a:hover,
+    .nav-links li a.active {
+      color: var(--white);
+      border-color: rgba(255,255,255,.25);
+      background: rgba(255,255,255,.08);
+    }
+
+    body.light .nav-links li a:hover,
+    body.light .nav-links li a.active {
+      color: #111;
+      border-color: rgba(0,0,0,.2);
+      background: rgba(0,0,0,.06);
+    }
+
+    /* Dark toggle */
+    .toggle-wrap { display: flex; align-items: center; }
+    .checkbox { opacity:0; position:absolute; }
+
+    .label {
+      width: 46px; height: 24px;
+      background: #333;
+      border-radius: 100vmax;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px;
+      cursor: pointer;
+      position: relative;
+      transform: scale(1.1);
+    }
+
+    .ball {
+      width: 18px; height: 18px;
+      background: var(--pink);
+      border-radius: 50%;
+      position: absolute;
+      left: 3px; top: 3px;
+      transition: transform .25s;
+    }
+
+    .checkbox:checked + .label .ball { transform: translateX(22px); }
+    .fa-moon-o { color: #aaa; font-size: 11px; }
+    .fa-sun-o  { color: #f5c518; font-size: 11px; }
+
+    /* Menu btn */
+    .menu-btn {
+      display: none;
+      cursor: pointer;
+      width: 28px;
+      flex-direction: column; gap: 5px;
+    }
+
+    .menu-btn span {
+      display: block; height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: all .3s;
+    }
+
+    body.light .menu-btn span { background: #111; }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    #home {
+      width: 100vw; height: 100vh;
+      background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat fixed;
+      display: flex; align-items: flex-end; justify-content: center;
+      position: relative;
+    }
+
+    #home::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.1) 60%);
+    }
+
+    .header-content {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 3rem 2rem 5rem;
+      max-width: 900px;
+    }
+
+    #quote {
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      letter-spacing: .15rem;
+      background: linear-gradient(90deg, var(--pink), #fff 50%, var(--pink));
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 6s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .header-content h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      letter-spacing: .5rem;
+      line-height: 1;
+      color: var(--white);
+      margin: 1rem 0 2rem;
+      text-shadow: 0 0 40px rgba(252,3,107,.35);
+    }
+
+    .line {
+      width: 60px; height: 3px;
+      background: var(--pink);
+      margin: .8rem auto;
+      border-radius: 2px;
+    }
+
+    /* ── CTN BUTTON ── */
+    .ctn {
+      display: inline-block;
+      font-family: var(--ff-body);
+      font-size: .85rem;
+      font-weight: 500;
+      letter-spacing: .1rem;
+      text-transform: uppercase;
+      padding: .85rem 2.5rem;
+      border-radius: 100vmax;
+      background: var(--pink);
+      color: #fff;
+      border: 2px solid var(--pink);
+      transition: all .3s cubic-bezier(.4,0,.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ctn::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: #fff;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .ctn:hover {
+      color: var(--pink);
+      background: transparent;
+      box-shadow: 0 0 30px rgba(252,3,107,.3);
+    }
+
+    /* ══════════════════════════════
+       SECTION BASE
+    ══════════════════════════════ */
+    section {
+      padding: 7rem 5vw;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-title h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: .25rem;
+      line-height: 1;
+    }
+
+    body.light .section-title h1 { color: #111; }
+
+    /* ══════════════════════════════
+       EVENTS
+    ══════════════════════════════ */
+    .events { width: 100%; padding: 7rem 5vw; max-width: 1400px; margin: 0 auto; }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .event-card {
+      background: var(--mid);
+      border-radius: 1.2rem;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.06);
+      transition: transform .4s cubic-bezier(.4,0,.2,1), box-shadow .4s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body.light .event-card {
+      background: #fff;
+      border-color: rgba(0,0,0,.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    }
+
+    .event-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 24px 60px rgba(252,3,107,.2);
+    }
+
+    .event-card-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      transition: transform .5s ease;
+    }
+
+    .event-card:hover .event-card-img { transform: scale(1.06); }
+
+    .event-card-img-wrap { overflow: hidden; }
+
+    .event-card-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .event-card h4 {
+      font-family: var(--ff-serif);
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    body.light .event-card h4 { color: #111; }
+
+    .event-card p {
+      font-size: .875rem;
+      line-height: 1.7;
+      color: rgba(245,240,235,.55);
+    }
+
+    body.light .event-card p { color: rgba(0,0,0,.5); }
+
+    .event-card .ctn { align-self: flex-start; margin-top: auto; }
+
+    /* ══════════════════════════════
+       EXPLORE
+    ══════════════════════════════ */
+    .explore {
+      width: 100%; max-width: 100%;
+      padding: 0;
+      height: 100vh;
+      background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&q=80') center/cover fixed;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+
+    .explore::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.35) 100%);
+    }
+
+    .explore-content {
+      position: relative; z-index: 1;
+      text-align: center;
+      max-width: 800px;
+      padding: 3rem;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 1.5rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .explore-content h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      letter-spacing: .4rem;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .explore-content p {
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: rgba(255,255,255,.8);
+      margin: 1.5rem 0 2rem;
+    }
+
+    /* ══════════════════════════════
+       TOURS
+    ══════════════════════════════ */
+    .tours { width: 100%; padding: 7rem 5vw; max-width: 1400px; margin: 0 auto; }
+
+    .tours-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    .tours-text h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      letter-spacing: .2rem;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .tours-text p {
+      font-size: .9rem;
+      line-height: 2;
+      color: rgba(245,240,235,.6);
+      margin: 1.5rem 0 2rem;
+    }
+
+    body.light .tours-text p { color: rgba(0,0,0,.5); }
+
+    .tours-text p strong {
+      color: var(--pink);
+      display: block;
+      margin-bottom: .3rem;
+    }
+
+    .image-gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 180px 180px;
+      gap: 1rem;
+    }
+
+    .image-gallery img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: .8rem;
+      transition: transform .4s, box-shadow .4s;
+      cursor: pointer;
+    }
+
+    .image-gallery img:first-child {
+      grid-row: span 2;
+      height: 100%;
+    }
+
+    .image-gallery img:hover {
+      transform: scale(1.03);
+      box-shadow: 0 16px 40px rgba(252,3,107,.25);
+    }
+
+    /* ══════════════════════════════
+       ABOUT
+    ══════════════════════════════ */
+    #about {
+      width: 100%; max-width: 100%; padding: 7rem 5vw 0;
+    }
+
+    #about .section-title { max-width: 1400px; margin: 0 auto 3rem; }
+
+    .about-parallax {
+      width: 100%; height: 65vh;
+      background: url('https://awe365.com/wp-content/uploads/2013/07/adventure-sports-hang-gliding-flickrcc-image-by-Steve-Slater.jpg') center/cover fixed;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .about-parallax::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(0,0,0,.7) 0%, rgba(0,0,0,.3) 100%);
+    }
+
+    .about-carousel {
+      position: relative; z-index: 1;
+      display: flex; gap: 1.5rem;
+      padding: 2rem;
+    }
+
+    /* Carousel */
+    input[type=radio] { display: none; }
+
+    .containerx {
+      position: relative;
+      width: min(600px, 90vw);
+      height: 340px;
+    }
+
+    .cards { position: relative; width: 100%; height: 100%; }
+
+    .cardt {
+      position: absolute;
+      width: 72%;
+      height: 100%;
+      left: 0; right: 0;
+      top: 0;
+      margin: auto;
+      transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .45s;
+      cursor: pointer;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .cardt img { width: 100%; height: 100%; object-fit: cover; }
+
+    #item-1:checked ~ .cards #col-img-3,
+    #item-2:checked ~ .cards #col-img-1,
+    #item-3:checked ~ .cards #col-img-2 {
+      transform: translateX(-38%) scale(.82); opacity: .35; z-index: 0;
+    }
+
+    #item-1:checked ~ .cards #col-img-2,
+    #item-2:checked ~ .cards #col-img-3,
+    #item-3:checked ~ .cards #col-img-1 {
+      transform: translateX(38%) scale(.82); opacity: .35; z-index: 0;
+    }
+
+    #item-1:checked ~ .cards #col-img-1,
+    #item-2:checked ~ .cards #col-img-2,
+    #item-3:checked ~ .cards #col-img-3 {
+      transform: translateX(0) scale(1); opacity: 1; z-index: 1;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+
+    /* ══════════════════════════════
+       CONTACT
+    ══════════════════════════════ */
+    #contact { width: 100%; padding: 7rem 5vw; max-width: 1400px; margin: 0 auto; }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 1rem;
+    }
+
+    .cform {
+      background: var(--mid);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 1.2rem;
+      padding: 2.5rem;
+    }
+
+    body.light .cform { background: #fff; border-color: rgba(0,0,0,.08); box-shadow: 0 4px 30px rgba(0,0,0,.06); }
+
+    .cform h2 {
+      font-family: var(--ff-serif);
+      font-size: 1.8rem;
+      font-weight: 300;
+      margin-bottom: .4rem;
+    }
+
+    .form-line {
+      width: 40px; height: 3px;
+      background: var(--pink);
+      border-radius: 2px;
+      margin-bottom: 2rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-field {
+      display: flex; flex-direction: column; gap: .4rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-field label {
+      font-size: .75rem;
+      font-weight: 500;
+      letter-spacing: .08rem;
+      text-transform: uppercase;
+      color: rgba(245,240,235,.5);
+    }
+
+    body.light .form-field label { color: rgba(0,0,0,.45); }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: .6rem;
+      padding: .8rem 1rem;
+      color: var(--white);
+      font-family: var(--ff-body);
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .25s, box-shadow .25s;
+      resize: vertical;
+    }
+
+    body.light .form-field input,
+    body.light .form-field select,
+    body.light .form-field textarea {
+      background: #f5f0eb;
+      border-color: rgba(0,0,0,.12);
+      color: #111;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(252,3,107,.15);
+    }
+
+    .form-field select option { background: var(--mid); }
+
+    input[type="submit"] {
+      background: var(--pink);
+      color: #fff;
+      border: 2px solid var(--pink);
+      padding: .85rem 2.5rem;
+      border-radius: 100vmax;
+      font-family: var(--ff-body);
+      font-size: .85rem;
+      font-weight: 500;
+      letter-spacing: .1rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .3s;
+    }
+
+    input[type="submit"]:hover {
+      background: transparent;
+      color: var(--pink);
+    }
+
+    /* Contact info box */
+    .cinfo {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-top: 1rem;
+    }
+
+    .cinfo-head {
+      font-family: var(--ff-serif);
+      font-size: 1.6rem;
+      font-weight: 300;
+      line-height: 1.4;
+    }
+
+    body.light .cinfo-head { color: #111; }
+
+    .cinfo-line {
+      width: 40px; height: 3px;
+      background: var(--pink); border-radius: 2px;
+    }
+
+    .cinfo-item a {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--mid);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: .8rem;
+      color: var(--white);
+      font-size: .9rem;
+      transition: all .3s;
+    }
+
+    body.light .cinfo-item a {
+      background: #fff;
+      border-color: rgba(0,0,0,.08);
+      color: #111;
+    }
+
+    .cinfo-item a:hover {
+      border-color: var(--pink);
+      background: rgba(252,3,107,.08);
+      transform: translateX(6px);
+    }
+
+    .cinfo-item i {
+      font-size: 1.3rem;
+      color: var(--pink);
+      width: 24px;
+      text-align: center;
+    }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    .footer {
+      background: #0a0a0a;
+      padding: 2.5rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+
+    body.light .footer { background: #1a1a1a; }
+
+    .footer span {
+      font-size: .8rem;
+      color: rgba(255,255,255,.35);
+      padding: 0;
+    }
+
+    .social {
+      display: flex; gap: .7rem;
+    }
+
+    .social a {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.5);
+      font-size: .9rem;
+      transition: all .3s;
+    }
+
+    .social a:hover {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: #fff;
+      transform: translateY(-3px);
+    }
+
+    /* ══════════════════════════════
+       SCROLL TO TOP
+    ══════════════════════════════ */
+    #upbtn {
+      position: fixed;
+      right: 2rem; bottom: 2rem;
+      width: 46px; height: 46px;
+      background: var(--pink);
+      border-radius: 50%;
+      display: none;
+      align-items: center; justify-content: center;
+      cursor: pointer;
+      z-index: 999;
+      transition: transform .3s, box-shadow .3s;
+      box-shadow: 0 4px 20px rgba(252,3,107,.4);
+    }
+
+    #upbtn:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(252,3,107,.5); }
+
+    #upbtn::before {
+      content: '';
+      border: 2px solid #fff;
+      border-bottom: none; border-right: none;
+      width: 10px; height: 10px;
+      transform: rotate(45deg) translateY(3px);
+    }
+
+    /* ══════════════════════════════
+       MOBILE MENU
+    ══════════════════════════════ */
+    @media (max-width: 1100px) {
+      .menu-btn { display: flex; }
+
+      .nav-links {
+        position: fixed;
+        top: 68px; left: 0; right: 0;
+        height: calc(100vh - 68px);
+        flex-direction: column;
+        background: rgba(10,10,10,.97);
+        backdrop-filter: var(--blur);
+        justify-content: center;
+        gap: 1.5rem;
+        transform: translateX(100%);
+        transition: transform .4s cubic-bezier(.4,0,.2,1);
+      }
+
+      body.light .nav-links { background: rgba(240,236,230,.97); }
+
+      .nav-links.open { transform: translateX(0); }
+
+      .nav-links li a { font-size: 1.1rem; }
+    }
+
+    @media (max-width: 900px) {
+      .tours-inner  { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .form-row     { grid-template-columns: 1fr; }
+      .image-gallery { grid-template-columns: 1fr 1fr; }
+      .image-gallery img:first-child { grid-row: auto; height: 180px; }
+    }
+
+    @media (max-width: 600px) {
+      .header-content h1 { letter-spacing: .2rem; }
+      .footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+
+    /* ══════════════════════════════
+       ENTRANCE ANIMATIONS
+    ══════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <a href="#home" class="brand">
+      <!-- inline SVG mountain icon -->
+      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="20,4 38,36 2,36" fill="none" stroke="#fc036b" stroke-width="2.5" stroke-linejoin="round"/>
+        <polygon points="12,20 24,36 0,36" fill="rgba(252,3,107,0.25)" stroke="#fc036b" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      <span class="logo">ADVENTURE</span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home"         class="active">Home</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#explore">Explore</a></li>
+      <li><a href="#tours">Tours</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="toggle-wrap">
+        <input type="checkbox" class="checkbox" id="checkbox" />
+        <label for="checkbox" class="label">
+          <i class="fa fa-moon-o"></i>
+          <i class="fa fa-sun-o"></i>
+          <div class="ball"></div>
+        </label>
+      </li>
+    </ul>
+
+    <div class="menu-btn" id="menuBtn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <header id="home">
+    <div class="header-content">
+      <h2 id="quote">Explore the Colourful World</h2>
+      <div class="line"></div>
+      <h1>A WONDERFUL<br>GIFT</h1>
+      <a href="#about" class="ctn">Discover More</a>
+    </div>
+  </header>
+
+  <!-- ── EVENTS ── -->
+  <section class="events" id="events">
+    <div class="section-title reveal">
+      <h1>Upcoming Events</h1>
+      <div class="line"></div>
+    </div>
+    <div class="cards-grid">
+      <article class="event-card reveal">
+        <div class="event-card-img-wrap">
+          <img class="event-card-img"
+            src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=800&q=80"
+            alt="Everest Base Camp" />
+        </div>
+        <div class="event-card-body">
+          <h4>Everest Base Camp Trek</h4>
+          <p>One of the world's most renowned destinations — a high-altitude odyssey through Sherpa villages, glacial landscapes, and soaring peaks.</p>
+          <a href="https://education.nationalgeographic.org/resource/mount-everest/" class="ctn">All Details</a>
+        </div>
+      </article>
+      <article class="event-card reveal">
+        <div class="event-card-img-wrap">
+          <img class="event-card-img"
+            src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80"
+            alt="Walking Holidays" />
+        </div>
+        <div class="event-card-body">
+          <h4>Walking Holidays</h4>
+          <p>Join small guided group walks, enjoy a challenging trek, or a luxury private guided walk crafted especially for you.</p>
+          <a href="#" class="ctn">All Details</a>
+        </div>
+      </article>
+      <article class="event-card reveal">
+        <div class="event-card-img-wrap">
+          <img class="event-card-img"
+            src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80"
+            alt="Andaman Beaches" />
+        </div>
+        <div class="event-card-body">
+          <h4>Andaman Beaches</h4>
+          <p>Diving in Andaman is exceptional. The coastal belt is one of the richest coral reef ecosystems in the world, pristine and breathtaking.</p>
+          <a href="#" class="ctn">All Details</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── EXPLORE ── -->
+  <section class="explore" id="explore">
+    <div class="explore-content reveal">
+      <h1>EXPLORE<br>THE WORLD</h1>
+      <div class="line"></div>
+      <p>"Travel makes one modest. You see what a tiny place you occupy in the world." — Gustav Flaubert</p>
+      <a href="#" class="ctn">Explore More</a>
+    </div>
+  </section>
+
+  <!-- ── TOURS ── -->
+  <section class="tours" id="tours">
+    <div class="tours-inner">
+      <div class="tours-text reveal">
+        <h1>UPCOMING TOURS &amp; DESTINATIONS</h1>
+        <div class="line" style="margin-left:0"></div>
+        <p>
+          <strong>Wed 28 Sept 2023</strong> Port of Spain City Tour and Birdseye Fort View.<br>
+          <strong>Sat 1 Oct 2023</strong> Tour the Gasparee Caves.<br>
+          <strong>Tue 4 Oct 2023</strong> Trinidad North Coast Experience.<br>
+          And many more…
+        </p>
+        <a href="#" class="ctn">Learn More</a>
+      </div>
+      <div class="image-gallery reveal">
+        <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=600&q=80" alt="Tour 1" />
+        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=600&q=80" alt="Tour 2" />
+        <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=600&q=80" alt="Tour 3" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ── -->
+  <section id="about" style="padding-bottom:0">
+    <div class="section-title reveal">
+      <h1>About Us</h1>
+      <div class="line"></div>
+    </div>
+    <div class="about-parallax">
+      <div class="about-carousel">
+        <div class="containerx">
+          <input type="radio" name="slider" id="item-1" checked />
+          <input type="radio" name="slider" id="item-2" />
+          <input type="radio" name="slider" id="item-3" />
+          <div class="cards">
+            <label class="cardt" for="item-1" id="col-img-1">
+              <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=700&q=80" />
+            </label>
+            <label class="cardt" for="item-2" id="col-img-2">
+              <img src="https://images.unsplash.com/photo-1519659528534-7fd733a832a0?auto=format&fit=crop&w=700&q=80" />
+            </label>
+            <label class="cardt" for="item-3" id="col-img-3">
+              <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=700&q=80" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ── -->
+  <section id="contact">
+    <div class="section-title reveal">
+      <h1>Contact Us</h1>
+      <div class="line"></div>
+    </div>
+    <div class="contact-grid">
+      <form class="cform reveal" action="" method="post">
+        <h2>Send us a message</h2>
+        <div class="form-line"></div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" placeholder="John Doe" />
+          </div>
+          <div class="form-field">
+            <label for="email">Email Address</label>
+            <input type="text" id="email" name="email" placeholder="john@email.com" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="country">Country</label>
+          <select name="country" id="country">
+            <option value="India">India</option>
+            <option value="Russia">Russia</option>
+            <option value="USA">USA</option>
+            <option value="Japan">Japan</option>
+            <option value="France">France</option>
+            <option value="Brazil">Brazil</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="remarks">Your Message</label>
+          <textarea id="remarks" name="remarks" rows="5" placeholder="Tell us about your dream adventure…"></textarea>
+        </div>
+        <input type="submit" value="Send Message" />
+      </form>
+
+      <div class="cinfo reveal">
+        <p class="cinfo-head">Prefer another way?<br>Reach us using the details below.</p>
+        <div class="cinfo-line"></div>
+        <div class="cinfo-item">
+          <a href="mailto:tourism@adventure.com">
+            <i class="fa fa-envelope"></i>
+            tourism@adventure.com
+          </a>
+        </div>
+        <div class="cinfo-item">
+          <a href="tel:+911234567890">
+            <i class="fa fa-phone"></i>
+            (+91) 12345-67890
+          </a>
+        </div>
+        <div class="cinfo-item">
+          <a href="#">
+            <i class="fa fa-map-marker"></i>
+            Kolkata, West Bengal, India
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <span>Created by  bhat mumin &nbsp;|&nbsp; © 2023 All rights reserved.</span>
+    <div class="social">
+      <a href="https://www.instagram.com/osman_ghani2" target="_blank" rel="noreferrer"><i class="fa fa-globe"></i></a>
+      <a href="https://github.com/PritamSarbajna"      target="_blank" rel="noreferrer"><i class="fa fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/pritam-sarbajna-74945821b/" target="_blank" rel="noreferrer"><i class="fa fa-linkedin"></i></a>
+    </div>
+  </footer>
+
+  <!-- ── SCROLL TO TOP ── -->
+  <div id="upbtn" onclick="topFunction()"></div>
+
+  <script>
+    // Mobile menu toggle
+    const menuBtn   = document.getElementById('menuBtn');
+    const navLinks  = document.getElementById('navLinks');
+    menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+    // Dark / light toggle
+    const checkbox = document.getElementById('checkbox');
+    if (localStorage.getItem('adv_dark') === 'false') {
+      document.body.classList.add('light');
+      checkbox.checked = true;
+    }
+    checkbox.addEventListener('change', () => {
+      document.body.classList.toggle('light');
+      localStorage.setItem('adv_dark', document.body.classList.contains('light') ? 'false' : 'true');
+    });
+
+    // Scroll-to-top button
+    const upBtn = document.getElementById('upbtn');
+    window.addEventListener('scroll', () => {
+      upBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+    });
+    function topFunction() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Active nav link on scroll
+    const sections = document.querySelectorAll('section[id], header[id]');
+    const links    = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 100) current = s.id;
+      });
+      links.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+      });
+    });
+  </script>
+</body>
+</html>
